@@ -27,12 +27,16 @@ bookRoutes.post('/', async (req: Request, res: Response) => {
 bookRoutes.get('/', async (req: Request, res: Response) => {
     try {
         let books = []
-        const { filter, sort, limit }: any = req.query;
+        const sortQuery: any = {};
 
-        if (filter && sort && limit) {
+        const { filter, sort, limit, sortBy }: any = req.query;
+
+        if (filter && sortBy && sort && limit) {
+            sortQuery[sortBy as string] = sort;
+            
             books = await Book.find({
                 genre: filter
-            }).sort(sort).limit(limit);
+            }).sort(sortQuery).limit(limit);
         } else {
             books = await Book.find();
         }
@@ -73,8 +77,8 @@ bookRoutes.put('/:bookId', async (req: Request, res: Response) => {
         const { bookId } = req.params;
         const updatedField = req.body;
 
-        if(!updatedField){
-            res.status(400).json({success: false, message: 'No data provided'});
+        if (!updatedField) {
+            res.status(400).json({ success: false, message: 'No data provided' });
             return;
         }
 
@@ -102,3 +106,20 @@ bookRoutes.put('/:bookId', async (req: Request, res: Response) => {
         });
     }
 });
+
+bookRoutes.delete('/:bookId', async (req: Request, res: Response) => {
+    try {
+        const { bookId } = req.params;
+        await Book.findByIdAndDelete(bookId) as BookType;
+        res.json({
+            success: true,
+            message: 'Book deleted successfully',
+            data: null
+        });
+    } catch (error: any) {
+        res.status(400).json({
+            message: 'Validation failed',
+            errors: error.message,
+        });
+    }
+})
