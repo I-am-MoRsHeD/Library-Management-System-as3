@@ -1,8 +1,8 @@
 import { model, Schema } from "mongoose";
-import { Book } from "../interfaces/book.interface";
+import { BookType } from "../interfaces/book.interface";
 
 
-const bookSchema = new Schema<Book>({
+const bookSchema = new Schema<BookType>({
     title : {
         type : String,
         required: [true, 'Title is required'],
