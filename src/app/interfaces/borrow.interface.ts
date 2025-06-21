@@ -1,5 +1,5 @@
 export interface BorrowedBook {
-    book : string,
+    book : String,
     quantity : number,
     dueDate : Date
 };

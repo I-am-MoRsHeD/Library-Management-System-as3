@@ -1,22 +1,38 @@
 import { model, Schema } from "mongoose";
 import { BorrowedBook } from "../interfaces/borrow.interface";
+import Book from "./book.model";
 
 
-const BorrowedBookSchema = new Schema<BorrowedBook>({
-    book : {
-        type : String,
+const borrowedBookSchema = new Schema<BorrowedBook>({
+    book: {
+        type: Schema.Types.ObjectId,
+        ref: 'Book',
         required: [true, 'Book is required'],
     },
-    quantity : {
-        type : Number,
+    quantity: {
+        type: Number,
         required: [true, 'Quantity is required'],
     },
-    dueDate : {
-        type : Date,
+    dueDate: {
+        type: Date,
         required: [true, 'Due date is required'],
     },
+}, {
+    versionKey: false,
+    timestamps: true
 });
 
-const BorrowedBookModel = model('BorrowedBook', BorrowedBookSchema);
+// post middleware
+borrowedBookSchema.post('save', async function (doc) {
+    if (doc) {
+        const book = await Book.findById(doc.book);
+        book.copies -= doc.quantity;
+        await book.save();
+
+        await Book.updateAvailability(doc.book as string);
+    }
+})
+
+const BorrowedBookModel = model('BorrowedBook', borrowedBookSchema);
 
 export default BorrowedBookModel;

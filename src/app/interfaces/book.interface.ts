@@ -7,4 +7,8 @@ export interface BookType {
     copies: number,
     available: boolean,
     [key: string]: any
-}
+};
+
+export interface BookModel extends BookType {
+    updateAvailability (bookId : string) : void;
+};
