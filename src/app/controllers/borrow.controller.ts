@@ -1,14 +1,15 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import Book from '../models/book.model';
-import BorrowedBookModel from '../models/borrow.model';
+import BorrowedBookModel, { BorrowZodSchema } from '../models/borrow.model';
 
 export const borrowRoutes = express.Router();
 
 
-borrowRoutes.post('/', async (req: Request, res: Response) => {
+borrowRoutes.post('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const body = req.body;
+        const body = await BorrowZodSchema.parseAsync(req.body);
         const book = await Book.findById(body?.book);
+
         if (book) {
             if (book?.copies < body?.quantity) {
                 res.status(400).json({ success: false, message: 'Not enough copies available' });
@@ -23,15 +24,12 @@ borrowRoutes.post('/', async (req: Request, res: Response) => {
             }
         };
 
-    } catch (error: any) {
-        res.status(400).json({
-            message: 'Validation failed',
-            errors: error.message,
-        });
+    } catch (error: unknown) {
+        next(error);
     }
 });
 
-borrowRoutes.get('/', async (req: Request, res: Response) => {
+borrowRoutes.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const summeryOfBooks = await BorrowedBookModel.aggregate([
             {
@@ -68,10 +66,7 @@ borrowRoutes.get('/', async (req: Request, res: Response) => {
             data: summeryOfBooks
         });
 
-    } catch (error: any) {
-        res.status(400).json({
-            message: 'Validation failed',
-            errors: error.message,
-        });
+    } catch (error: unknown) {
+        next(error);
     }
 })

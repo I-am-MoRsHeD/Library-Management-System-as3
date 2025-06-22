@@ -1,6 +1,7 @@
 import express, { Application, Request, Response } from 'express';
 import { bookRoutes } from './app/controllers/book.controller';
 import { borrowRoutes } from './app/controllers/borrow.controller';
+import { errorHandler } from './app/middleware/errorHandler';
 
 export const app: Application = express();
 
@@ -11,3 +12,5 @@ app.use('/api/borrow', borrowRoutes);
 app.use('/', (req : Request, res: Response) => {
     res.send('Welcome to LMS');
 });
+
+app.use(errorHandler);

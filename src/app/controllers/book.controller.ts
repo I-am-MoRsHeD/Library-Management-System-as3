@@ -1,13 +1,13 @@
-import express, { Request, Response } from 'express';
-import Book from '../models/book.model';
+import express, { NextFunction, Request, Response } from 'express';
+import Book, { BookZodSchema } from '../models/book.model';
 import { BookType } from '../interfaces/book.interface';
 
 export const bookRoutes = express.Router();
 
-bookRoutes.post('/', async (req: Request, res: Response) => {
+bookRoutes.post('/', async (req: Request, res: Response, next : NextFunction) => {
     try {
 
-        const body = req.body;
+        const body = await BookZodSchema.parseAsync(req.body);
 
         const book = await Book.create(body);
         res.status(201).json({
@@ -16,24 +16,21 @@ bookRoutes.post('/', async (req: Request, res: Response) => {
             data: book
         });
 
-    } catch (error: any) {
-        res.status(400).json({
-            message: 'Validation failed',
-            errors: error.message,
-        });
+    } catch (error: unknown) {
+        next(error);
     }
 });
 
-bookRoutes.get('/', async (req: Request, res: Response) => {
+bookRoutes.get('/', async (req: Request, res: Response, next : NextFunction) => {
     try {
         let books = []
         const sortQuery: any = {};
 
-        const { filter, sort, limit, sortBy }: any = req.query;
+        const { filter, sortBy = 'createdAt', sort = 'asc', limit = 5 }: any = req.query;
 
-        if (filter && sortBy && sort && limit) {
+        if (filter) {
             sortQuery[sortBy as string] = sort;
-            
+
             books = await Book.find({
                 genre: filter
             }).sort(sortQuery).limit(limit);
@@ -46,16 +43,13 @@ bookRoutes.get('/', async (req: Request, res: Response) => {
             message: 'Books retrieved successfully',
             data: books
         });
-    } catch (error: any) {
-        res.status(400).json({
-            message: 'Validation failed',
-            errors: error.message,
-        });
+    } catch (error: unknown) {
+        next(error)
     };
 
 });
 
-bookRoutes.get('/:bookId', async (req: Request, res: Response) => {
+bookRoutes.get('/:bookId', async (req: Request, res: Response, next : NextFunction) => {
     try {
         const { bookId } = req.params;
         const singleBook = await Book.findById(bookId);
@@ -64,15 +58,12 @@ bookRoutes.get('/:bookId', async (req: Request, res: Response) => {
             message: 'Book retrieved successfully',
             data: singleBook
         });
-    } catch (error: any) {
-        res.status(400).json({
-            message: 'Validation failed',
-            errors: error.message,
-        });
+    } catch (error: unknown) {
+        next(error)
     }
 });
 
-bookRoutes.put('/:bookId', async (req: Request, res: Response) => {
+bookRoutes.put('/:bookId', async (req: Request, res: Response, next : NextFunction) => {
     try {
         const { bookId } = req.params;
         const updatedField = req.body;
@@ -80,34 +71,21 @@ bookRoutes.put('/:bookId', async (req: Request, res: Response) => {
         if (!updatedField) {
             res.status(400).json({ success: false, message: 'No data provided' });
             return;
-        }
+        };
 
-        const book = await Book.findById(bookId) as BookType;
-        if (!book) {
-            res.status(404).json({ success: false, message: 'Book not found' });
-        }
+        const updatedBook = await Book.findByIdAndUpdate(bookId, updatedField, { new: true });
 
-        for (const key in updatedField) {
-            if (updatedField.hasOwnProperty(key)) {
-                book[key] = updatedField[key];
-            }
-        }
-
-        const updatedBook = await book.save();
         res.json({
             success: true,
             message: 'Book updated successfully',
             data: updatedBook
         });
-    } catch (error: any) {
-        res.status(400).json({
-            message: 'Validation failed',
-            errors: error.message,
-        });
+    } catch (error: unknown) {
+        next(error)
     }
 });
 
-bookRoutes.delete('/:bookId', async (req: Request, res: Response) => {
+bookRoutes.delete('/:bookId', async (req: Request, res: Response, next : NextFunction) => {
     try {
         const { bookId } = req.params;
         await Book.findByIdAndDelete(bookId) as BookType;
@@ -116,10 +94,7 @@ bookRoutes.delete('/:bookId', async (req: Request, res: Response) => {
             message: 'Book deleted successfully',
             data: null
         });
-    } catch (error: any) {
-        res.status(400).json({
-            message: 'Validation failed',
-            errors: error.message,
-        });
+    } catch (error: unknown) {
+        next(error)
     }
 })

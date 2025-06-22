@@ -1,5 +1,6 @@
 import { model, Schema } from "mongoose";
 import { BookModel, BookType } from "../interfaces/book.interface";
+import { z } from 'zod';
 
 const bookSchema = new Schema<BookType>({
     title: {
@@ -26,7 +27,7 @@ const bookSchema = new Schema<BookType>({
     },
     description: {
         type: String,
-        maxlength: [100, 'Description must be at most 100 characters long'],
+        maxlength: [20, 'Description must be at most 20 characters long'],
     },
     copies: {
         type: Number,
@@ -40,6 +41,24 @@ const bookSchema = new Schema<BookType>({
     versionKey: false,
     timestamps: true
 });
+
+export const BookZodSchema = z.object(
+    {
+        title: z.string().min(5),
+        author: z.string(),
+        genre: z
+            .string()
+            .transform((val) => val.toUpperCase())
+            .refine((val) =>
+                ['FICTION', 'NON-FICTION', 'SCIENCE', 'HISTORY', 'FANTASY', 'BIOGRAPHY'].includes(val),
+                { message: 'Genre is not supported' }
+            ),
+        isbn: z.string(),
+        description: z.string().max(300).optional(),
+        copies: z.number().min(1),
+        available: z.boolean().default(true)
+    }
+)
 
 bookSchema.static('updateAvailability', async function updateAvailability(bookId: string) {
     const book = await this.findById(bookId);
