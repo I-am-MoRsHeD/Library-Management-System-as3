@@ -9,8 +9,15 @@ app.use(express.json());
 app.use('/api/books', bookRoutes);
 app.use('/api/borrow', borrowRoutes);
 
-app.use('/', (req : Request, res: Response) => {
+app.get('/', (req: Request, res: Response) => {
     res.send('Welcome to LMS');
+});
+
+app.use((req: Request, res: Response) => {
+    res.status(404).json({
+        success: false,
+        message: `Invalid route: ${req.originalUrl}`,
+    });
 });
 
 app.use(errorHandler);
