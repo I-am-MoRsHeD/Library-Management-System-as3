@@ -26,7 +26,7 @@ bookRoutes.get('/', async (req: Request, res: Response, next: NextFunction) => {
         let books = []
         const sortQuery: Record<string, 1 | -1> = {};
 
-        const { filter, sortBy = 'createdAt', sort = 'asc', limit = 5 }: { filter?: string, sortBy?: string, sort?: string, limit?: number } = req.query;
+        const { filter, sortBy = 'createdAt', sort = 'asc', limit = 10 }: { filter?: string, sortBy?: string, sort?: string, limit?: number } = req.query;
 
         if (filter) {
             sortQuery[sortBy] = sort === 'asc' ? 1 : -1;
