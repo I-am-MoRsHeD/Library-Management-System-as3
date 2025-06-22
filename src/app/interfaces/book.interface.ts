@@ -1,3 +1,5 @@
+import { Document, Model, Types } from "mongoose";
+
 export interface BookType {
     title: string,
     author: string,
@@ -6,9 +8,10 @@ export interface BookType {
     description?: string,
     copies: number,
     available: boolean,
-    [key: string]: any
 };
 
-export interface BookModel extends BookType {
-    updateAvailability (bookId : string) : void;
+export interface BookDocument extends BookType, Document {}
+
+export interface BookModel extends Model<BookDocument> {
+    updateAvailability(bookId: Types.ObjectId | string): Promise<void>;
 };

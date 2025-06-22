@@ -2,6 +2,7 @@ import { model, Schema } from "mongoose";
 import { BorrowedBook } from "../interfaces/borrow.interface";
 import Book from "./book.model";
 import { z } from "zod";
+import { BookDocument } from "../interfaces/book.interface";
 
 
 const borrowedBookSchema = new Schema<BorrowedBook>({
@@ -34,11 +35,11 @@ export const BorrowZodSchema = z.object(
 // deduct copies via post middleware
 borrowedBookSchema.post('save', async function (doc) {
     if (doc) {
-        const book = await Book.findById(doc.book);
+        const book = await Book.findById(doc.book) as BookDocument;
         book.copies -= doc.quantity;
         await book.save();
 
-        await Book.updateAvailability(doc.book as string);
+        await Book.updateAvailability(doc.book.toString());
     }
 })
 

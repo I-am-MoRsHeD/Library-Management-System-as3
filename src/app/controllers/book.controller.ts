@@ -4,7 +4,7 @@ import { BookType } from '../interfaces/book.interface';
 
 export const bookRoutes = express.Router();
 
-bookRoutes.post('/', async (req: Request, res: Response, next : NextFunction) => {
+bookRoutes.post('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
 
         const body = await BookZodSchema.parseAsync(req.body);
@@ -21,15 +21,15 @@ bookRoutes.post('/', async (req: Request, res: Response, next : NextFunction) =>
     }
 });
 
-bookRoutes.get('/', async (req: Request, res: Response, next : NextFunction) => {
+bookRoutes.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
         let books = []
-        const sortQuery: any = {};
+        const sortQuery: Record<string, 1 | -1> = {};
 
-        const { filter, sortBy = 'createdAt', sort = 'asc', limit = 5 }: any = req.query;
+        const { filter, sortBy = 'createdAt', sort = 'asc', limit = 5 }: { filter?: string, sortBy?: string, sort?: string, limit?: number } = req.query;
 
         if (filter) {
-            sortQuery[sortBy as string] = sort;
+            sortQuery[sortBy] = sort === 'asc' ? 1 : -1;
 
             books = await Book.find({
                 genre: filter
@@ -49,7 +49,7 @@ bookRoutes.get('/', async (req: Request, res: Response, next : NextFunction) => 
 
 });
 
-bookRoutes.get('/:bookId', async (req: Request, res: Response, next : NextFunction) => {
+bookRoutes.get('/:bookId', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { bookId } = req.params;
         const singleBook = await Book.findById(bookId);
@@ -63,7 +63,7 @@ bookRoutes.get('/:bookId', async (req: Request, res: Response, next : NextFuncti
     }
 });
 
-bookRoutes.put('/:bookId', async (req: Request, res: Response, next : NextFunction) => {
+bookRoutes.put('/:bookId', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { bookId } = req.params;
         const updatedField = req.body;
@@ -85,7 +85,7 @@ bookRoutes.put('/:bookId', async (req: Request, res: Response, next : NextFuncti
     }
 });
 
-bookRoutes.delete('/:bookId', async (req: Request, res: Response, next : NextFunction) => {
+bookRoutes.delete('/:bookId', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { bookId } = req.params;
         await Book.findByIdAndDelete(bookId) as BookType;

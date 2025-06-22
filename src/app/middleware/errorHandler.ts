@@ -2,7 +2,7 @@ import { ErrorRequestHandler } from "express";
 import { ZodError } from "zod";
 
 
-export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+export const errorHandler: ErrorRequestHandler = (err, req, res) => {
 
     let statusCode = 500;
     let message = 'Something went wrong';

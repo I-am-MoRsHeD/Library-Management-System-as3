@@ -1,8 +1,8 @@
 import { model, Schema } from "mongoose";
-import { BookModel, BookType } from "../interfaces/book.interface";
+import { BookDocument, BookModel } from "../interfaces/book.interface";
 import { z } from 'zod';
 
-const bookSchema = new Schema<BookType>({
+const bookSchema = new Schema<BookDocument>({
     title: {
         type: String,
         required: [true, 'Title is required'],
@@ -70,6 +70,6 @@ bookSchema.static('updateAvailability', async function updateAvailability(bookId
     }
 })
 
-const Book = model<BookType, BookModel>('Book', bookSchema);
+const Book = model<BookDocument, BookModel>('Book', bookSchema);
 
 export default Book;
