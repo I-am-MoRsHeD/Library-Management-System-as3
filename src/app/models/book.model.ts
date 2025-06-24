@@ -27,7 +27,7 @@ const bookSchema = new Schema<BookDocument>({
     },
     description: {
         type: String,
-        maxlength: [20, 'Description must be at most 20 characters long'],
+        maxlength: [300, 'Description must be at most 300 characters long'],
     },
     copies: {
         type: Number,

@@ -16,7 +16,7 @@ const borrowedBookSchema = new Schema<BorrowedBook>({
         required: [true, 'Quantity is required'],
     },
     dueDate: {
-        type: Date,
+        type: String,
         required: [true, 'Due date is required'],
     },
 }, {
@@ -28,7 +28,7 @@ export const BorrowZodSchema = z.object(
     {
         book: z.string(),
         quantity: z.number(),
-        dueDate: z.date(),
+        dueDate: z.string(),
     }
 )
 
