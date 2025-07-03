@@ -9,7 +9,7 @@ const borrowedBookSchema = new Schema<BorrowedBook>({
     book: {
         type: Schema.Types.ObjectId,
         ref: 'Book',
-        required: [true, 'Book is required'],
+        required: [true, 'BookId is required'],
     },
     quantity: {
         type: Number,

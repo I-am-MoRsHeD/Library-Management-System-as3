@@ -26,22 +26,30 @@ bookRoutes.get('/', async (req: Request, res: Response, next: NextFunction) => {
         let books = []
         const sortQuery: Record<string, 1 | -1> = {};
 
-        const { filter, sortBy = 'createdAt', sort = 'asc', limit = 10 }: { filter?: string, sortBy?: string, sort?: string, limit?: number } = req.query;
+        const { filter, sortBy = 'createdAt', sort = 'asc', limit = 10, page = 1 }: { filter?: string, sortBy?: string, sort?: string, limit?: number, page? : number } = req.query;
+
+        const skip = (Number(page) -1) * Number(limit);
 
         if (filter) {
             sortQuery[sortBy] = sort === 'asc' ? 1 : -1;
 
             books = await Book.find({
                 genre: filter
-            }).sort(sortQuery).limit(limit);
+            })
+            .sort(sortQuery)
+            .skip(skip)
+            .limit(limit);
         } else {
-            books = await Book.find();
+            books = await Book.find()
+            .skip(skip)
+            .limit(limit);
         }
 
         res.json({
             success: true,
             message: 'Books retrieved successfully',
-            data: books
+            data: books,
+            total : await Book.countDocuments()
         });
     } catch (error: unknown) {
         next(error)
