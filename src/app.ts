@@ -7,7 +7,10 @@ import { errorHandler } from './app/middleware/errorHandler';
 export const app: Application = express();
 
 app.use(express.json());
-app.use(cors({ origin: "*" }));
+app.use(cors({
+    origin: ["https://library-management-system-as4.vercel.app","http://localhost:5173"],
+}));
+
 app.use('/api/books', bookRoutes);
 app.use('/api/borrow', borrowRoutes);
 
