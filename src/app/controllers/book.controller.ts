@@ -26,9 +26,9 @@ bookRoutes.get('/', async (req: Request, res: Response, next: NextFunction) => {
         let books = []
         const sortQuery: Record<string, 1 | -1> = {};
 
-        const { filter, sortBy = 'createdAt', sort = 'asc', limit = 10, page = 1 }: { filter?: string, sortBy?: string, sort?: string, limit?: number, page? : number } = req.query;
+        const { filter, sortBy = 'createdAt', sort = 'asc', limit = 10, page = 1 }: { filter?: string, sortBy?: string, sort?: string, limit?: number, page?: number } = req.query;
 
-        const skip = (Number(page) -1) * Number(limit);
+        const skip = (Number(page) - 1) * Number(limit);
 
         if (filter) {
             sortQuery[sortBy] = sort === 'asc' ? 1 : -1;
@@ -36,20 +36,20 @@ bookRoutes.get('/', async (req: Request, res: Response, next: NextFunction) => {
             books = await Book.find({
                 genre: filter
             })
-            .sort(sortQuery)
-            .skip(skip)
-            .limit(limit);
+                .sort(sortQuery)
+                .skip(skip)
+                .limit(limit);
         } else {
             books = await Book.find()
-            .skip(skip)
-            .limit(limit);
+                .skip(skip)
+                .limit(limit);
         }
 
         res.json({
             success: true,
             message: 'Books retrieved successfully',
             data: books,
-            total : await Book.countDocuments()
+            total: await Book.countDocuments()
         });
     } catch (error: unknown) {
         next(error)
@@ -73,15 +73,25 @@ bookRoutes.get('/:bookId', async (req: Request, res: Response, next: NextFunctio
 
 bookRoutes.put('/:bookId', async (req: Request, res: Response, next: NextFunction) => {
     try {
+        let updatedData = {};
         const { bookId } = req.params;
         const updatedField = req.body;
 
         if (!updatedField) {
             res.status(400).json({ success: false, message: 'No data provided' });
             return;
+        } else if (updatedField.copies < 0) {
+            res.status(400).json({ success: false, message: 'Copies cannot be negative' });
+        } else if (updatedField.copies > 0) {
+            updatedData = {
+                ...updatedField,
+                available: true
+            };
+        } else{
+            updatedData = updatedField;
         };
 
-        const updatedBook = await Book.findByIdAndUpdate(bookId, updatedField, { new: true });
+        const updatedBook = await Book.findByIdAndUpdate(bookId, updatedData, { new: true });
 
         res.json({
             success: true,
