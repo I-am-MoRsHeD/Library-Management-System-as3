@@ -8,7 +8,7 @@ export const app: Application = express();
 
 app.use(express.json());
 app.use(cors({
-    origin: ['http://localhost:5173'],
+    origin: ['http://localhost:5173', 'https://library-management-system-as4.vercel.app'],
 }))
 app.use('/api/books', bookRoutes);
 app.use('/api/borrow', borrowRoutes);
